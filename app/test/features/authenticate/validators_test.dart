@@ -1,4 +1,4 @@
-import 'package:app/logic/login/form_validators.dart';
+import 'package:app/features/authenticate/domain/validators.dart';
 import 'package:test/test.dart';
 
 void main() {

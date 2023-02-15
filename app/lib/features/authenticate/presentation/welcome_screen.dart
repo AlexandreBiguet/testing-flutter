@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
+  final VoidCallback onSignIn;
+  final VoidCallback onSignUp;
 
-  // This widget is the root of your application.
+  const WelcomeScreen(
+      {required this.onSignIn, required this.onSignUp, super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +26,7 @@ class WelcomeScreen extends StatelessWidget {
             SizedBox(
               width: 280,
               child: ElevatedButton(
-                onPressed: () => context.go('/login'),
+                onPressed: onSignIn,
                 child: const Text("Sign in"),
               ),
             ),
@@ -33,7 +35,7 @@ class WelcomeScreen extends StatelessWidget {
               children: [
                 const Text("Don't have an account yet?"),
                 TextButton(
-                  onPressed: () => context.go('/login'),
+                  onPressed: onSignUp,
                   child: const Text('Create an account'),
                 ),
               ],
