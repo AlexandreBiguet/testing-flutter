@@ -7,6 +7,7 @@ part 'auth_repository.g.dart';
 class AuthRepository extends _$AuthRepository {
   @override
   FutureOr<User?> build() async {
+    // TODO(Alex): https://pub.dev/packages/flutter_secure_storage
     return null;
   }
 
