@@ -11,15 +11,13 @@ class AuthRepository extends _$AuthRepository {
   }
 
   Future<User> _helper(String email) {
-    // return Future.delayed(const Duration(seconds: 3), () {
-    //   return User(email: email);
-    // });
-    return Future.value(User(email: email));
+    return Future.delayed(const Duration(seconds: 3), () {
+      return User(email: email);
+    });
   }
 
   Future<void> signIn(String email, String password) async {
     state = const AsyncValue.loading();
-    await Future.delayed(const Duration(seconds: 3));
     state = await AsyncValue.guard(() => _helper(email));
   }
 
