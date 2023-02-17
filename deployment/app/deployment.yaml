@@ -1,0 +1,32 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: flutter-app
+  labels:
+    app: flutter-app
+  namespace: testing-flutter
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flutter-app
+  template:
+    metadata:
+      labels:
+        app: flutter-app
+    spec:
+      containers:
+        - name: testing-flutter
+          image: testing-flutter/app:1.0.0_1
+          imagePullPolicy: Never
+          ports:
+            - name: web
+              containerPort: 80
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
