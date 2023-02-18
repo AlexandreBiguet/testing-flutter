@@ -1,7 +1,7 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: flutter-app
+  name: flutter-app-deployment
   labels:
     app: flutter-app
   namespace: testing-flutter

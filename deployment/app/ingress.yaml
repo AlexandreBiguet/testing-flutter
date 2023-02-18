@@ -12,6 +12,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: flutter-app
+            name: flutter-app-service
             port:
               name: web
