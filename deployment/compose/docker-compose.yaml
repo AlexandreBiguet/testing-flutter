@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "traefik"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./traefik:/etc/traefik
+
+  whoami:
+    image: "traefik/whoami"
+    container_name: "whoami"
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+  
+  flutter-app:
+    image: "testing-flutter/app:1.0.0_1"
+    container_name: "testing-flutter-app"
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flutter-app.rule=Host(`test.localhost`)"
+      - "traefik.http.routers.flutter-app.entrypoints=web"
+
+  prometheus:
+    image: "prom/prometheus:v2.37.6"
+    container_name: "prometheus"
+    volumes: 
+      - ./prometheus:/etc/prometheus
+      - ./prometheus/data:/prometheus/data
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--storage.tsdb.path=/prometheus/data"
+      - "--storage.tsdb.retention.time=15d"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prom.localhost`)"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+
+

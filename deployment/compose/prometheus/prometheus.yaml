@@ -1,0 +1,13 @@
+
+scrape_configs:
+  - job_name: "prometheus"
+    scrape_interval: 15s
+    static_configs:
+         - targets: 
+            - "prometheus:9090"
+  
+  - job_name: "traefik"
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - "traefik:8082"
