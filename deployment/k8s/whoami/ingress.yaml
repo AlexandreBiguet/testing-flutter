@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami-ingress
+  namespace: testing-flutter
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /who
+        pathType: Prefix
+        backend:
+          service:
+            name: whoami
+            port:
+              name: web

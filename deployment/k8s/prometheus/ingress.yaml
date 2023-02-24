@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: testing-flutter
+
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /prom
+        pathType: Exact
+        backend:
+          service:
+            name: prometheus-service
+            port:
+              name: web
