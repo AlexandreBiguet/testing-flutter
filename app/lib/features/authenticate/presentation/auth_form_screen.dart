@@ -1,4 +1,4 @@
-import 'package:app/features/authenticate/data/auth_repository.dart';
+import 'package:app/features/authenticate/controller/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:app/features/authenticate/domain/validators.dart';
@@ -31,7 +31,6 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _pwdController = TextEditingController();
-  final _login = AuthRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +60,7 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           logger.i('Sending sign in request');
-                          ref.read(authRepositoryProvider.notifier).signIn(
+                          ref.read(authControllerProvider.notifier).signIn(
                               _emailController.text, _pwdController.text);
                         }
                       },
@@ -71,7 +70,7 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           logger.i('Sending create account request');
-                          ref.read(authRepositoryProvider.notifier).signUp(
+                          ref.read(authControllerProvider.notifier).signUp(
                               _emailController.text, _pwdController.text);
                         }
                       },

@@ -1,25 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_repository.dart';
+part of 'auth_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authRepositoryHash() => r'f2edeb853084baddcf8b9c824f597ee9cd3eff56';
+String _$authControllerHash() => r'8e4e9aabb060086dc690eae07e0fa1e23e8d5a2f';
 
-/// See also [AuthRepository].
-@ProviderFor(AuthRepository)
-final authRepositoryProvider =
-    AutoDisposeAsyncNotifierProvider<AuthRepository, User?>.internal(
-  AuthRepository.new,
-  name: r'authRepositoryProvider',
+/// See also [AuthController].
+@ProviderFor(AuthController)
+final authControllerProvider =
+    AutoDisposeAsyncNotifierProvider<AuthController, User?>.internal(
+  AuthController.new,
+  name: r'authControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$authRepositoryHash,
+      : _$authControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$AuthRepository = AutoDisposeAsyncNotifier<User?>;
+typedef _$AuthController = AutoDisposeAsyncNotifier<User?>;
 // ignore_for_file: unnecessary_raw_strings, subtype_of_sealed_class, invalid_use_of_internal_member, do_not_use_environment, prefer_const_constructors, public_member_api_docs, avoid_private_typedef_functions
