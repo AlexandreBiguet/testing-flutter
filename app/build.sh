@@ -2,13 +2,24 @@
 
 script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# TODO(Alex): perhaps better to use an env variable instead? 
-#  note: sed command replaces '+' with '_' as '+' is not allowed for docker tag
-version=$(grep "version:" $script_dir/pubspec.yaml | tail -n1 | cut -c 10- | sed 's/+/_/g')
+help_message () {
+    echo "Usage:"
+    echo "build.sh VERSION"
+    echo "Example: "
+    echo "build.sh 1.0.0"
+}
+
+if [[ $# != 1 ]]; then
+    echo "Error: one argument expected"
+    help_message
+    exit
+fi
+
+version=$1
 
 tag=testing-flutter/app:$version
-dockerfile=$script_dir/Dockerfile
+dockerfile=$script_dir/Dockerfile.local
 
-echo "Building docker images: $tag from $dockerfile"
+echo "Building $tag - from $dockerfile"
 
 docker build -t $tag -f $dockerfile .
