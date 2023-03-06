@@ -6,19 +6,34 @@ use axum::{
     Router, Server,
 };
 use chrono::{Duration, Utc};
+use tracing::Level;
 
 use std::sync::{Arc, RwLock};
 
+use tower_http::cors::{Any, CorsLayer};
+
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        // should be configurable
+        // .json()
+        .with_max_level(Level::DEBUG)
+        .init();
 
     let state = AppState::default();
+
+    let cors = CorsLayer::new()
+        // TODO: configure this
+        // .allow_origin("http://localhost:53552".parse::<HeaderValue>().unwrap())
+        .allow_origin(Any)
+        .allow_methods([http::Method::GET, http::Method::POST])
+        .allow_headers([http::header::CONTENT_TYPE]);
 
     let router = Router::new()
         .route("/", get(get_root))
         .route("/auth/signup", post(post_signup))
-        .with_state(state.clone());
+        .with_state(state.clone())
+        .layer(cors);
     let server = Server::bind(&"0.0.0.0:1234".parse().unwrap()).serve(router.into_make_service());
     let address = server.local_addr();
 
@@ -55,6 +70,10 @@ async fn post_signup(
     State(state): State<AppState>,
     Json(payload): Json<CreateUser>,
 ) -> Json<UserCreated> {
+    // TODO: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+    // TODO: https://crates.io/crates/pbkdf2
+    // TODO: https://www.shuttle.rs/blog/2022/08/11/authentication-tutorial
+
     tracing::info!("Sign up user with email: {}", payload.email);
 
     let mut user = fetch_user(&state, payload.email.clone()).await;
