@@ -5,6 +5,7 @@ use axum::{
     routing::{get, post},
     Router, Server,
 };
+use chrono::{Duration, Utc};
 
 use std::sync::{Arc, RwLock};
 
@@ -64,8 +65,34 @@ async fn post_signup(
     })
 }
 
-fn create_token(_user: User) -> String {
-    "1234".to_string()
+fn get_issuer() -> String {
+    let mut issuer = env!("CARGO_PKG_NAME").to_string();
+    issuer.push_str(env!("CARGO_PKG_VERSION"));
+    issuer
+}
+
+fn create_token(user: User) -> String {
+    // https://www.rfc-editor.org/rfc/rfc7519
+
+    use hmac::{Hmac, Mac};
+    use jwt::SignWithKey;
+    use sha2::Sha256;
+    use std::collections::BTreeMap;
+
+    let iss = get_issuer();
+    let now = Utc::now();
+    let expiration_date = now.checked_add_signed(Duration::hours(1)).unwrap();
+    let exp = expiration_date.to_string();
+    let iat = now.to_string();
+
+    let key: Hmac<Sha256> = Hmac::new_from_slice(b"some-secret").unwrap();
+    let mut claims = BTreeMap::new();
+    claims.insert("sub", &user.id);
+    claims.insert("iss", &iss);
+    claims.insert("exp", &exp);
+    claims.insert("iat", &iat);
+
+    claims.sign_with_key(&key).unwrap()
 }
 
 async fn fetch_user(state: &AppState, email: String) -> Option<User> {
