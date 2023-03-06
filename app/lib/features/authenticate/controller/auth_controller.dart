@@ -1,4 +1,5 @@
 import 'package:app/features/authenticate/domain/user.dart';
+import 'package:app/features/authenticate/repository/auth.dart';
 import 'package:app/features/authenticate/repository/auth_repository.dart';
 import 'package:app/features/authenticate/repository/fake_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -6,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'auth_controller.g.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return FakeAuth();
+  return Auth();
 });
 
 @riverpod
