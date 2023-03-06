@@ -54,26 +54,13 @@ async fn post_signup(
     State(state): State<AppState>,
     Json(payload): Json<CreateUser>,
 ) -> Json<UserCreated> {
-    tracing::info!("sign up user with email: {}", payload.email);
+    tracing::info!("Sign up user with email: {}", payload.email);
 
-    let mut user_exists = false;
-
-    match fetch_user(&state, payload.email.clone()).await {
-        Ok(_user) => {
-            user_exists = true;
-            tracing::info!("User {} already exists", payload.email);
-        }
-        Err(_) => {
-            user_exists = false;
-            tracing::info!("User {} doesn't exist", payload.email);
-        }
-    }
-
-    let new_user: Option<User>;
-
-    if !user_exists {
-        new_user = Some(create_user(state, payload).await);
-        tracing::info!("new user created {}", new_user.unwrap().id);
+    if let Some(_user) = fetch_user(&state, payload.email.clone()).await {
+        tracing::info!("User {} already exists", payload.email);
+    } else {
+        let new_user = create_user(state, payload).await;
+        tracing::info!("New user created: {:?}", new_user);
     }
 
     Json(UserCreated {
@@ -81,18 +68,7 @@ async fn post_signup(
     })
 }
 
-#[derive(Debug, Clone)]
-struct UserNotFound {
-    email: String,
-}
-
-impl std::fmt::Display for UserNotFound {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "User with email {} not found", self.email)
-    }
-}
-
-async fn fetch_user(state: &AppState, email: String) -> Result<User, UserNotFound> {
+async fn fetch_user(state: &AppState, email: String) -> Option<User> {
     tracing::info!(
         "fetching user with email: {} from {} known accounts",
         email,
@@ -104,9 +80,9 @@ async fn fetch_user(state: &AppState, email: String) -> Result<User, UserNotFoun
     }
 
     if let Some(value) = state.users.read().unwrap().get(&email) {
-        Ok(value.clone())
+        Some(value.clone())
     } else {
-        Err(UserNotFound { email })
+        None
     }
 }
 
