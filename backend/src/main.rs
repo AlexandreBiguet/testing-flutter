@@ -1,3 +1,132 @@
-fn main() {
-    println!("Hello, world!");
+use std::collections::HashMap;
+
+use axum::{
+    extract::{Json, State},
+    routing::{get, post},
+    Router, Server,
+};
+
+use std::sync::{Arc, RwLock};
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::fmt::init();
+
+    let state = AppState::default();
+
+    let router = Router::new()
+        .route("/", get(get_root))
+        .route("/auth/signup", post(post_signup))
+        .with_state(state.clone());
+    let server = Server::bind(&"0.0.0.0:1234".parse().unwrap()).serve(router.into_make_service());
+    let address = server.local_addr();
+
+    tracing::info!("Listening on {address}");
+
+    server.await.unwrap();
+}
+
+#[tracing::instrument]
+async fn get_root() -> &'static str {
+    "Hello from axum"
+}
+
+#[derive(serde::Deserialize, Clone)]
+struct CreateUser {
+    email: String,
+    password: String,
+}
+
+#[derive(serde::Serialize)]
+struct UserCreated {
+    token: String,
+}
+
+#[derive(Clone, Debug)]
+struct User {
+    id: String,
+    email: String,
+    hashed_password: String, // Todo should be hash
+}
+
+#[axum::debug_handler]
+async fn post_signup(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateUser>,
+) -> Json<UserCreated> {
+    tracing::info!("sign up user with email: {}", payload.email);
+
+    let mut user_exists = false;
+
+    match fetch_user(&state, payload.email.clone()).await {
+        Ok(_user) => {
+            user_exists = true;
+            tracing::info!("User {} already exists", payload.email);
+        }
+        Err(_) => {
+            user_exists = false;
+            tracing::info!("User {} doesn't exist", payload.email);
+        }
+    }
+
+    let new_user: Option<User>;
+
+    if !user_exists {
+        new_user = Some(create_user(state, payload).await);
+        tracing::info!("new user created {}", new_user.unwrap().id);
+    }
+
+    Json(UserCreated {
+        token: "1234".to_string(),
+    })
+}
+
+#[derive(Debug, Clone)]
+struct UserNotFound {
+    email: String,
+}
+
+impl std::fmt::Display for UserNotFound {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "User with email {} not found", self.email)
+    }
+}
+
+async fn fetch_user(state: &AppState, email: String) -> Result<User, UserNotFound> {
+    tracing::info!(
+        "fetching user with email: {} from {} known accounts",
+        email,
+        state.users.read().unwrap().keys().len()
+    );
+
+    for (k, v) in state.users.read().unwrap().iter() {
+        tracing::info!("{}, {:?}", k, v);
+    }
+
+    if let Some(value) = state.users.read().unwrap().get(&email) {
+        Ok(value.clone())
+    } else {
+        Err(UserNotFound { email })
+    }
+}
+
+#[derive(Clone, Default)]
+struct AppState {
+    users: Arc<RwLock<HashMap<String, User>>>,
+}
+
+async fn create_user(mut state: AppState, user: CreateUser) -> User {
+    let new_user = User {
+        id: user.email.clone(),
+        email: user.email,
+        hashed_password: user.password, // TODO hash
+    };
+
+    state
+        .users
+        .write()
+        .unwrap()
+        .insert(new_user.id.clone(), new_user.to_owned());
+
+    new_user.clone()
 }
