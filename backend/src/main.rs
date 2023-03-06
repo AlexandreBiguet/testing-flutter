@@ -115,7 +115,7 @@ struct AppState {
     users: Arc<RwLock<HashMap<String, User>>>,
 }
 
-async fn create_user(mut state: AppState, user: CreateUser) -> User {
+async fn create_user(state: AppState, user: CreateUser) -> User {
     let new_user = User {
         id: user.email.clone(),
         email: user.email,
