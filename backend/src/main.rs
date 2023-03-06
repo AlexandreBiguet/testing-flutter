@@ -56,16 +56,16 @@ async fn post_signup(
 ) -> Json<UserCreated> {
     tracing::info!("Sign up user with email: {}", payload.email);
 
-    if let Some(_user) = fetch_user(&state, payload.email.clone()).await {
-        tracing::info!("User {} already exists", payload.email);
-    } else {
-        let new_user = create_user(state, payload).await;
-        tracing::info!("New user created: {:?}", new_user);
-    }
+    let mut user = fetch_user(&state, payload.email.clone()).await;
+    user.get_or_insert(create_user(state, payload).await);
 
     Json(UserCreated {
-        token: "1234".to_string(),
+        token: create_token(user.unwrap()),
     })
+}
+
+fn create_token(_user: User) -> String {
+    "1234".to_string()
 }
 
 async fn fetch_user(state: &AppState, email: String) -> Option<User> {
