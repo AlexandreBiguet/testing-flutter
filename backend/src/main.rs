@@ -22,6 +22,13 @@ async fn main() {
 
     let state = AppState::default();
 
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+    // https://www.html5rocks.com/static/images/cors_server_flowchart.png
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers
+    // https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
+    // https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+
     let cors = CorsLayer::new()
         // TODO: configure this
         // .allow_origin("http://localhost:53552".parse::<HeaderValue>().unwrap())
@@ -78,6 +85,9 @@ async fn post_signup(
 
     let mut user = fetch_user(&state, payload.email.clone()).await;
     user.get_or_insert(create_user(state, payload).await);
+
+    // TODO: should add Set-Cookie to response
+    //   https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage
 
     Json(UserCreated {
         token: create_token(user.unwrap()),
